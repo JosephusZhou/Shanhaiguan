@@ -1,10 +1,12 @@
 package com.josephuszhou.shanhaiguan
 
 import android.app.Activity
+import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.josephuszhou.shanhaiguan.config.Config
 import com.josephuszhou.shanhaiguan.listener.OnPermissionRequestListener
+import com.josephuszhou.shanhaiguan.ui.PermissionFragment
 import java.lang.ref.WeakReference
 
 /**
@@ -30,6 +32,8 @@ class Shanhaiguan private constructor(activity: Activity) {
 
     private val mConfig = Config.getInitialInstance()
 
+    private var permissionFragment: PermissionFragment = PermissionFragment()
+
     fun permissions(permissions: Array<String>): Shanhaiguan {
         mConfig.mPermissions = permissions
         return this
@@ -42,4 +46,9 @@ class Shanhaiguan private constructor(activity: Activity) {
         }*/
     }
 
+    private fun isMarshmallow() = Build.VERSION.SDK_INT >= Build.VERSION_CODES.M
+
+    fun isGranted(permission: String): Boolean {
+        return !isMarshmallow() || permissionFragment.isGranted(permission)
+    }
 }
