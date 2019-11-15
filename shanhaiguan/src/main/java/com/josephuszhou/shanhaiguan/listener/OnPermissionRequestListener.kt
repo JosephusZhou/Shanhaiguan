@@ -7,8 +7,8 @@ package com.josephuszhou.shanhaiguan.listener
  */
 interface OnPermissionRequestListener {
 
-    fun onGranted()
+    fun onGranted(grantedPermissions: Array<String>)
 
-    fun onDenied()
+    fun onDenied(deniedPermissions: Array<String>)
 
 }

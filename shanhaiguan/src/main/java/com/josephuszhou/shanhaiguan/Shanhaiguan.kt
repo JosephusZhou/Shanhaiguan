@@ -1,54 +1,56 @@
 package com.josephuszhou.shanhaiguan
 
-import android.app.Activity
 import android.os.Build
-import androidx.appcompat.app.AppCompatActivity
-import androidx.fragment.app.Fragment
-import com.josephuszhou.shanhaiguan.config.Config
+import androidx.fragment.app.FragmentActivity
 import com.josephuszhou.shanhaiguan.listener.OnPermissionRequestListener
 import com.josephuszhou.shanhaiguan.ui.PermissionFragment
-import java.lang.ref.WeakReference
 
 /**
  * @author senfeng.zhou
  * @date 2019-11-07
  * @desc
  */
-class Shanhaiguan private constructor(activity: Activity) {
+class Shanhaiguan private constructor(activity: FragmentActivity) {
 
     companion object {
 
-        fun with(activity: Activity) = Shanhaiguan(activity)
+        private const val FRAGMENT_TAG = "Shanhaiguan"
 
-        fun with(fragment: Fragment) {
+        fun with(activity: FragmentActivity) = Shanhaiguan(activity)
+
+        /*fun with(fragment: Fragment) {
             fragment.activity?.let {
                 with(it)
             }
-        }
-
-    }
-
-    private val mActivityReference = WeakReference<Activity>(activity)
-
-    private val mConfig = Config.getInitialInstance()
-
-    private var permissionFragment: PermissionFragment = PermissionFragment()
-
-    fun permissions(permissions: Array<String>): Shanhaiguan {
-        mConfig.mPermissions = permissions
-        return this
-    }
-
-    fun on(onPermissionRequestListener: OnPermissionRequestListener) {
-        mConfig.mOnPermissionRequestListener = onPermissionRequestListener
-        /*mActivityReference.get()?.let {
-            it.supportFragmentManager.beginTransaction()
         }*/
     }
 
-    private fun isMarshmallow() = Build.VERSION.SDK_INT >= Build.VERSION_CODES.M
+    private var permissionFragment: PermissionFragment
 
-    fun isGranted(permission: String): Boolean {
-        return !isMarshmallow() || permissionFragment.isGranted(permission)
+    init {
+        val fragment = activity.supportFragmentManager.findFragmentByTag(FRAGMENT_TAG)
+        if (fragment is PermissionFragment) {
+            permissionFragment = fragment
+        } else {
+            permissionFragment = PermissionFragment()
+            activity.supportFragmentManager.beginTransaction()
+                .add(permissionFragment, FRAGMENT_TAG)
+                .commit()
+            activity.supportFragmentManager.executePendingTransactions()
+        }
     }
+
+    fun request(
+        permissions: Array<String>,
+        onPermissionRequestListener: OnPermissionRequestListener?
+    ) {
+        if (!isMarshmallow()) {
+            onPermissionRequestListener?.onGranted(permissions)
+            return
+        }
+
+        permissionFragment.requestPermissions(permissions, onPermissionRequestListener)
+    }
+
+    private fun isMarshmallow() = Build.VERSION.SDK_INT >= Build.VERSION_CODES.M
 }
