@@ -5,23 +5,19 @@
     android:layout_height="match_parent"
     android:gravity="center_horizontal"
     android:orientation="vertical"
-    tools:context=".MainActivity">
+    tools:context=".ReqPermissionChildFragment">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAllCaps="false"
+        android:text="这是 Fragment 里面嵌套的子 Fragment"/>
 
     <androidx.appcompat.widget.AppCompatButton
-        android:id="@+id/btn_req_in_activity"
+        android:id="@+id/btn_read_sms"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="100dp"
-        android:onClick="onClick"
-        android:textAllCaps="false"
-        android:text="Activity 请求权限" />
-
-    <androidx.appcompat.widget.AppCompatButton
-        android:id="@+id/btn_req_in_fragment"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:onClick="onClick"
-        android:textAllCaps="false"
-        android:text="Fragment 请求权限" />
+        android:text="请求短信权限" />
 
 </LinearLayout>

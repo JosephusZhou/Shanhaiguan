@@ -5,7 +5,13 @@
     android:layout_height="match_parent"
     android:gravity="center_horizontal"
     android:orientation="vertical"
-    tools:context=".SecondFragment">
+    tools:context=".ReqPermissionFragment">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAllCaps="false"
+        android:text="这是 Fragment"/>
 
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/btn_contact"
@@ -13,5 +19,12 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="100dp"
         android:text="请求联系人权限" />
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/btn_to_child_fragment"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAllCaps="false"
+        android:text="前往嵌套 Fragment" />
 
 </LinearLayout>
