@@ -53,5 +53,19 @@ class Shanhaiguan private constructor(activity: FragmentActivity) {
         permissionFragment.requestPermissions(permissions, onPermissionRequestListener)
     }
 
+    fun request(
+        permissions: Array<String>,
+        onGranted: ((grantedPermissions: Array<String>) -> Unit)? = null,
+        onDenied: ((deniedPermissions: Array<String>) -> Unit)? = null,
+        onRevoked: ((revokedPermissions: Array<String>) -> Unit)? = null
+    ) {
+        if (!isMarshmallow()) {
+            onGranted?.invoke(permissions)
+            return
+        }
+
+        permissionFragment.requestPermissions(permissions, onGranted, onDenied, onRevoked)
+    }
+
     private fun isMarshmallow() = Build.VERSION.SDK_INT >= Build.VERSION_CODES.M
 }

@@ -26,7 +26,9 @@ class ReqPermissionActivity : AppCompatActivity(), OnPermissionRequestListener {
             R.id.btn_camera -> {
                 Shanhaiguan.with(this).request(
                     arrayOf(Manifest.permission.CAMERA),
-                    this
+                    {onGranted(it)},
+                    {onDenied(it)},
+                    {onRevoked(it)}
                 )
             }
             R.id.btn_read_storage -> {
