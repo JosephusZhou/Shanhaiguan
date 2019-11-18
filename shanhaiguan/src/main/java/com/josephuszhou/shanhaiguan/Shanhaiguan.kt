@@ -1,6 +1,7 @@
 package com.josephuszhou.shanhaiguan
 
 import android.os.Build
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import com.josephuszhou.shanhaiguan.listener.OnPermissionRequestListener
 import com.josephuszhou.shanhaiguan.ui.PermissionFragment
@@ -18,11 +19,11 @@ class Shanhaiguan private constructor(activity: FragmentActivity) {
 
         fun with(activity: FragmentActivity) = Shanhaiguan(activity)
 
-        /*fun with(fragment: Fragment) {
+        fun with(fragment: Fragment): Shanhaiguan {
             fragment.activity?.let {
-                with(it)
-            }
-        }*/
+                return with(it)
+            } ?: throw IllegalStateException("No Activity attached")
+        }
     }
 
     private var permissionFragment: PermissionFragment

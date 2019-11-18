@@ -11,4 +11,5 @@ interface OnPermissionRequestListener {
 
     fun onDenied(deniedPermissions: Array<String>)
 
+    fun onRevoked(revokedPermissions: Array<String>)
 }

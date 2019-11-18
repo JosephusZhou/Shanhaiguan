@@ -1,14 +1,21 @@
 package com.josephuszhou.shanhaiguan.demo
 
 import android.Manifest
+import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.View
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.josephuszhou.shanhaiguan.Shanhaiguan
 import com.josephuszhou.shanhaiguan.listener.OnPermissionRequestListener
 
 class MainActivity : AppCompatActivity(), OnPermissionRequestListener {
+
+    companion object {
+
+        @JvmStatic
+        private val TAG = "Shanhaiguan"
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -37,18 +44,27 @@ class MainActivity : AppCompatActivity(), OnPermissionRequestListener {
                     ), this
                 )
             }
+            R.id.btn_to_fragment -> {
+                startActivity(Intent(this, SecondActivity::class.java))
+            }
         }
     }
 
     override fun onGranted(grantedPermissions: Array<String>) {
         for(permission in grantedPermissions) {
-            Toast.makeText(this, permission + "成功", Toast.LENGTH_SHORT).show()
+            Log.e(TAG, permission + "已授权")
         }
     }
 
     override fun onDenied(deniedPermissions: Array<String>) {
         for(permission in deniedPermissions) {
-            Toast.makeText(this, permission + "失败", Toast.LENGTH_SHORT).show()
+            Log.e(TAG, permission + "未授权")
+        }
+    }
+
+    override fun onRevoked(revokedPermissions: Array<String>) {
+        for(permission in revokedPermissions) {
+            Log.e(TAG, permission + "被策略拒绝")
         }
     }
 }

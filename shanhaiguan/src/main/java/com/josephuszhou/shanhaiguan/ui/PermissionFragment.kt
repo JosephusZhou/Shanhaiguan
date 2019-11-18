@@ -8,36 +8,58 @@ import com.josephuszhou.shanhaiguan.listener.OnPermissionRequestListener
 
 class PermissionFragment : Fragment() {
 
+    enum class Status {
+        Denied,
+        Granted,
+        Revoked
+    }
+
     companion object {
 
         private const val PERMISSIONS_REQUEST_CODE = 100
     }
 
-    private var mPermissions: Array<String> = emptyArray()
-
     private var mOnPermissionRequestListener: OnPermissionRequestListener? = null
 
-    private lateinit var mGrantedPermissions: ArrayList<String>
+    private lateinit var mPermissionsMap: HashMap<String, Status>
 
-    private lateinit var mDeniedPermissions: ArrayList<String>
-
-    /*@TargetApi(Build.VERSION_CODES.M)
+    @TargetApi(Build.VERSION_CODES.M)
     fun isGranted(permission: String): Boolean {
         return activity?.checkSelfPermission(permission) ?: PackageManager.PERMISSION_DENIED == PackageManager.PERMISSION_GRANTED
-    }*/
+    }
+
+    @TargetApi(Build.VERSION_CODES.M)
+    fun isRevoked(permission: String): Boolean {
+        return activity?.let {
+            it.packageManager?.isPermissionRevokedByPolicy(permission, it.packageName)
+        } ?: throw IllegalStateException("No Activity attached")
+    }
 
     @TargetApi(Build.VERSION_CODES.M)
     fun requestPermissions(
         permissions: Array<String>,
         onPermissionRequestListener: OnPermissionRequestListener?
     ) {
-        this.mPermissions = permissions
-        this.mOnPermissionRequestListener = onPermissionRequestListener
+        mOnPermissionRequestListener = onPermissionRequestListener
+        mPermissionsMap = HashMap()
 
-        mGrantedPermissions = ArrayList()
-        mDeniedPermissions = ArrayList()
+        val mPermissions = ArrayList<String>()
+        for (permission in permissions) {
+            mPermissionsMap[permission] = when {
+                isGranted(permission) -> Status.Granted
+                isRevoked(permission) -> Status.Revoked
+                else -> {
+                    mPermissions.add(permission)
+                    Status.Denied
+                }
+            }
+        }
 
-        requestPermissions(mPermissions, PERMISSIONS_REQUEST_CODE)
+        if (mPermissions.size > 0) {
+            requestPermissions(mPermissions.toTypedArray(), PERMISSIONS_REQUEST_CODE)
+        } else {
+            handlePermissionResult()
+        }
     }
 
     @TargetApi(Build.VERSION_CODES.M)
@@ -51,19 +73,42 @@ class PermissionFragment : Fragment() {
         if (requestCode != PERMISSIONS_REQUEST_CODE)
             return
 
-        for(i in grantResults.indices) {
-            if (grantResults[i] == PackageManager.PERMISSION_GRANTED) {
-                mGrantedPermissions.add(permissions[i])
-            } else {
-                mDeniedPermissions.add(permissions[i])
+        for (i in grantResults.indices) {
+            mPermissionsMap[permissions[i]] =
+                if (grantResults[i] == PackageManager.PERMISSION_GRANTED) {
+                    Status.Granted
+                } else {
+                    if (isRevoked(permissions[i]))
+                        Status.Revoked
+                    else
+                        Status.Denied
+                }
+        }
+
+        handlePermissionResult()
+    }
+
+    private fun handlePermissionResult() {
+        val grantedPermissions = ArrayList<String>()
+        val deniedPermissions = ArrayList<String>()
+        val revokedPermissions = ArrayList<String>()
+
+        for ((k, v) in mPermissionsMap) {
+            when (v) {
+                Status.Granted -> grantedPermissions.add(k)
+                Status.Denied -> deniedPermissions.add(k)
+                else -> revokedPermissions.add(k)
             }
         }
 
-        if (mGrantedPermissions.size > 0) {
-            mOnPermissionRequestListener?.onGranted(mGrantedPermissions.toTypedArray())
+        if (grantedPermissions.size > 0) {
+            mOnPermissionRequestListener?.onGranted(grantedPermissions.toTypedArray())
         }
-        if (mDeniedPermissions.size > 0) {
-            mOnPermissionRequestListener?.onDenied(mDeniedPermissions.toTypedArray())
+        if (deniedPermissions.size > 0) {
+            mOnPermissionRequestListener?.onDenied(deniedPermissions.toTypedArray())
+        }
+        if (revokedPermissions.size > 0) {
+            mOnPermissionRequestListener?.onRevoked(revokedPermissions.toTypedArray())
         }
     }
 }
